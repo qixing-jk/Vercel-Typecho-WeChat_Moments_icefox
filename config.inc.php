@@ -6,8 +6,8 @@
  * @license    GNU General Public License 2.0
  * @version    $Id$
  */
- 
-/** 开启https */ 
+
+/** 开启https */
 define('__TYPECHO_SECURE__',true);
 
 /** 定义根目录 */
@@ -43,5 +43,6 @@ $db->addServer(array (
   'port' => $_ENV["TYPECHO_PORT"],
   'database' => $_ENV["TYPECHO_DATABASE"],
   'engine' => $_ENV["TYPECHO_ENGINE"],
+  'sslCa' => $_ENV["TYPECHO_SSL_CA"],
 ), Typecho_Db::READ | Typecho_Db::WRITE);
 Typecho_Db::set($db);
