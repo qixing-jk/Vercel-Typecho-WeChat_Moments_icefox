@@ -8,7 +8,7 @@
  */
 
 /** 开启https */
-define('__TYPECHO_SECURE__',true);
+define('__TYPECHO_SECURE__', true);
 
 /** 定义根目录 */
 define('__TYPECHO_ROOT_DIR__', dirname(__FILE__));
@@ -24,8 +24,8 @@ define('__TYPECHO_ADMIN_DIR__', '/admin/');
 
 /** 设置包含路径 */
 @set_include_path(get_include_path() . PATH_SEPARATOR .
-__TYPECHO_ROOT_DIR__ . '/var' . PATH_SEPARATOR .
-__TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__);
+    __TYPECHO_ROOT_DIR__ . '/var' . PATH_SEPARATOR .
+    __TYPECHO_ROOT_DIR__ . __TYPECHO_PLUGIN_DIR__);
 
 /** 载入API支持 */
 require_once 'Typecho/Common.php';
@@ -35,14 +35,14 @@ Typecho_Common::init();
 
 /** 定义数据库参数 */
 $db = new Typecho_Db($_ENV["TYPECHO_ADAPTER_NAME"], $_ENV["TYPECHO_PREFIX"]);
-$db->addServer(array (
-  'host' => $_ENV["TYPECHO_HOST"],
-  'user' => $_ENV["TYPECHO_USERNAME"],
-  'password' => $_ENV["TYPECHO_PASSWORD"],
-  'charset' => $_ENV["TYPECHO_CHARSET"],
-  'port' => $_ENV["TYPECHO_PORT"],
-  'database' => $_ENV["TYPECHO_DATABASE"],
-  'engine' => $_ENV["TYPECHO_ENGINE"],
-  'sslCa' => $_ENV["TYPECHO_SSL_CA"],
+$db->addServer(array(
+    'host' => $_ENV["TYPECHO_HOST"],
+    'user' => $_ENV["TYPECHO_USERNAME"],
+    'password' => $_ENV["TYPECHO_PASSWORD"],
+    'charset' => $_ENV["TYPECHO_CHARSET"],
+    'port' => $_ENV["TYPECHO_PORT"],
+    'database' => $_ENV["TYPECHO_DATABASE"],
+    'engine' => $_ENV["TYPECHO_ENGINE"],
+    'sslCa' => dirname(__FILE__) . '/' . $_ENV["TYPECHO_SSL_CA"],
 ), Typecho_Db::READ | Typecho_Db::WRITE);
 Typecho_Db::set($db);
