@@ -1,0 +1,19 @@
+{
+  "name": "friend-moment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "unocss \"**/*.php\" \"**/*.html\" --watch",
+    "build": "unocss \"{snippets,templates}/**/*.php\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "unocss": "^0.57.2"
+  },
+  "dependencies": {
+    "@unocss/reset": "^0.57.7"
+  }
+}
