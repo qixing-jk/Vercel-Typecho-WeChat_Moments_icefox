@@ -1,8 +1,9 @@
-已正式更新1.3.0版本。
+<div align="center">
+    <h1>Icefox</h1>
+    <p>一款Typecho仿微信朋友圈生活类主题，采用响应式设计</p>
+</div>
 
-> 升级须知：旧版本的`RestfulIcefox`插件需要停用
-
-**交流QQ群：527838299**
+## **交流QQ群：527838299**
 
 已开发功能列表：
 - [x] 朋友圈顶部背景图设置
@@ -16,3 +17,7 @@
 - [x] 后台配置是否自动播放视频
 - [x] 评论过多点击进入详情
 - [x] 评论表情
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=xiaopanglian/icefox&type=Date)](https://star-history.com/#xiaopanglian/icefox&Date)

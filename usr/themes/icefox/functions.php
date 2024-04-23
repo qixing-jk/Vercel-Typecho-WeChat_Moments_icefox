@@ -1,24 +1,34 @@
 <?php
 
 use Typecho\Common;
-use Widget\Options;
-use Widget\Notice;
 
 if (!defined('__TYPECHO_ROOT_DIR__'))
     exit;
 
+// 设置版本号
+if (!defined("__THEME_VERSION__")) {
+    define("__THEME_VERSION__", "1.8.0");
+}
 //icefox 核心包
 include_once 'core/core.php';
 
 function themeConfig($form)
 {
     ?>
-    <link rel="stylesheet" href="/usr/themes/icefox/assets/admin.css">
+    <link rel="stylesheet" href="/usr/themes/icefox/assets/css/admin.css">
     <div>
-        <div class="admin-title">Icefox主题后台配置（v1.3.0）</div>
+        <div class="admin-title">
+            Icefox主题后台配置（v<?php echo __THEME_VERSION__; ?>）
+            <div>
+                <?php
+                backupThemeData();
+                ?>
+            </div>
+        </div>
         <div>
             <div>
                 <?php
+
                 $backgroundImageUrl = new Typecho_Widget_Helper_Form_Element_Text(
                     'backgroundImageUrl',
                     null,
@@ -39,12 +49,22 @@ function themeConfig($form)
 
                 $form->addInput($userAvatarUrl);
 
+                $avatarTitle = new Typecho_Widget_Helper_Form_Element_Text(
+                    'avatarTitle',
+                    null,
+                    null,
+                    _t('顶部用户头像旁名称'),
+                    _t('在这里填入顶部用户头像胖展示的名称')
+                );
+
+                $form->addInput($avatarTitle);
+
                 $topPost = new Typecho_Widget_Helper_Form_Element_Text(
                     "topPost",
                     null,
                     null,
                     "置顶文章",
-                    "格式：文章的ID,文章的ID,文章的ID （中间使用英文逗号,分隔）"
+                    "格式：文章的ID || 文章的ID || 文章的ID （中间使用 || 分隔）"
                 );
                 $form->addInput($topPost);
 
@@ -79,6 +99,35 @@ function themeConfig($form)
                 );
                 $form->addInput($autoMutedPlayVideo);
 
+                $defaultThemeColor = new Typecho_Widget_Helper_Form_Element_Radio(
+                    'defaultThemeColor',
+                    [
+                        'yes' => _t("暗色"),
+                        'no' => _t("亮色")
+                    ],
+                    'yes',
+                    _t('默认主题配色')
+                );
+                $form->addInput($defaultThemeColor);
+
+                $neteasyCloudMusic = new Typecho_Widget_Helper_Form_Element_Text(
+                    'neteasyCloudMusic',
+                    null,
+                    null,
+                    _t('网易云音乐歌单地址（功能开发中）'),
+                    _t('网页顶部播放器播放，目前只支持网易云音乐。')
+                );
+                $form->addInput($neteasyCloudMusic);
+
+                $friendLinks = new Typecho_Widget_Helper_Form_Element_Textarea(
+                    "friendLinks",
+                    null,
+                    null,
+                    "友情链接",
+                    "使用||分隔，每一行一个友情链接。格式如下<br>logo || 名称 || 链接"
+                );
+                $form->addInput($friendLinks);
+
                 $script = new Typecho_Widget_Helper_Form_Element_Textarea(
                     "script",
                     null,
@@ -105,18 +154,30 @@ function themeConfig($form)
     <?php
 
 
-    // backupThemeData();
 }
 
 function themeFields($layout)
 {
+    ?>
+    <style>
+        textarea {
+            width: 100%;
+            height: 8rem;
+        }
+
+        input[type=text] {
+            width: 100%;
+        }
+    </style>
+    <?php
     $friendVideo = new Typecho_Widget_Helper_Form_Element_Textarea(
         'friend_video',
         null,
         null,
         _t('朋友圈视频'),
-        _t('<span style="color:red;">在这里填入朋友圈视频地址</span>')
+        _t('<span>在这里填入朋友圈视频地址</span>')
     );
+    $friendVideo->input->setAttribute('class', 't-video-find friend_video_input');
     $layout->addItem($friendVideo);
 
     $friendPicture = new Typecho_Widget_Helper_Form_Element_Textarea(
@@ -124,8 +185,9 @@ function themeFields($layout)
         null,
         null,
         _t('朋友圈图片'),
-        _t('<span style="color:red;">在这里填入朋友圈图片，最多9张，使用英文逗号隔开（注：如果填了朋友圈视频，则优先视频）</span>')
+        _t('<span style="color:red;">不推荐，最好直接把图片添加在文章内容里面</span><br><span>在这里填入朋友圈图片，最多9张，使用英文逗号隔开（注：如果填了朋友圈视频，则优先视频）</span>')
     );
+    $friendPicture->input->setAttribute('class', 't-default-find');
     $layout->addItem($friendPicture);
 
     $position = new Typecho_Widget_Helper_Form_Element_Text(
@@ -133,8 +195,9 @@ function themeFields($layout)
         null,
         null,
         _t('发布定位'),
-        _t('<span style="color:red;">在这里填定位名称（例：成都市·天府广场）</span>')
+        _t('<span>在这里填定位名称（例：成都市·天府广场）</span>')
     );
+    $position->input->setAttribute('class', 't-default-find');
     $layout->addItem($position);
 
     $isAdvertise = new Typecho_Widget_Helper_Form_Element_Radio(
@@ -145,9 +208,20 @@ function themeFields($layout)
         ],
         "0",
         _t("是否是广告"),
-        _t('<span style="color:red;">默认不是</span>')
+        _t('<span>默认不是</span>')
     );
+    $isAdvertise->input->setAttribute('class', 't-default-find');
     $layout->addItem($isAdvertise);
+
+    $music = new Typecho_Widget_Helper_Form_Element_Textarea(
+        'music',
+        null,
+        null,
+        _t('插入音乐'),
+        _t('格式如下：<br>歌曲名称 || 专辑名称 || 播放地址 || 音乐图片')
+    );
+    $music->input->setAttribute('class', 't-music-find');
+    $layout->addItem($music);
 
     // $canComment = new Typecho_Widget_Helper_Form_Element_Radio(
     //     "canComment",
@@ -160,6 +234,65 @@ function themeFields($layout)
     //     _t('<span style="color:red;">默认允许评论</span>')
     // );
     // $layout->addItem($canComment);
+}
+
+//自定义字段扩展
+Typecho_Plugin::factory('admin/write-post.php')->bottom = array('tabField', 'tabs');
+Typecho_Plugin::factory('admin/write-page.php')->bottom = array('tabField', 'tabs');
+class tabField
+{
+    public static function tabs()
+    {
+        ?>
+        <style>
+            .tabss {
+                margin: 10px;
+                clear: both;
+                display: block;
+                height: 30px;
+                padding: 0
+            }
+
+            ;
+
+            .tabss a {
+                outline: none !important
+            }
+
+            ;
+        </style>
+
+        <script>
+            $(function () {
+                var tabsHtml = `
+                                                                            <ul class="typecho-option-tabs tabss" style="">
+                                                                                <li class="current" id="t-default"><a href="javascript:;">默认</a></li>
+                                                                                <li class="" id="t-video"><a href="javascript:;">视频</a></li>
+                                                                                <li class="" id="t-music"><a href="javascript:;">音乐</a></li>
+                                                                            </ul>`;
+                $("#custom-field-expand").after(tabsHtml);
+
+                //初始化，全部隐藏
+                $("#custom-field>table>tbody").find("tr").hide();
+
+                //初始化显示
+                $(".tabss>li.current").parent().siblings("table").find('.t-default-find').closest('tr').show();
+
+                $(".tabss li").click(function () {
+                    var clasz = this.id;
+                    //删除同胞的current
+                    $(this).siblings().removeClass('current');
+                    //自身添加current
+                    $(this).addClass('current');
+                    //全部隐藏
+                    $("#custom-field>table>tbody").find("tr").hide();
+                    //显示自身底下的子元素
+                    $(".tabss>li.current").parent().siblings("table").find('.' + clasz + '-find').closest('tr').show();
+                });
+            });
+        </script>
+        <?php
+    }
 }
 
 /**
@@ -194,8 +327,11 @@ function backupThemeData()
                         ->rows(["value" => $value])
                         ->where("name = ?", "theme:" . $name . "_backup")
                 );
-                Notice::alloc()->set("备份更新成功", "success");
-                Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                try {
+                    Widget_Notice::alloc()->set("备份更新成功", "success");
+                    Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                } catch (Exception $exception) {
+                }
             ?>
             <?php
             } else {
@@ -207,8 +343,11 @@ function backupThemeData()
                             ->insert("table.options")
                             ->rows(["name" => "theme:" . $name . "_backup", "user" => "0", "value" => $value])
                     );
-                    Notice::alloc()->set("备份成功", "success");
-                    Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                    try {
+                        Widget_Notice::alloc()->set("备份成功", "success");
+                        Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                    } catch (Exception $exception) {
+                    }
                 ?>
                 <?php
                 }
@@ -236,14 +375,20 @@ function backupThemeData()
                         ->rows(["value" => $_value])
                         ->where("name = ?", "theme:" . $name)
                 );
-                Notice::alloc()->set("备份还原成功", "success");
-                Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                try {
+                    Widget_Notice::alloc()->set("备份还原成功", "success");
+                    Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                } catch (Exception $exception) {
+                }
             ?>
             <?php
             } else {
 
-                Notice::alloc()->set("无备份数据，请先创建备份", "error");
-                Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                try {
+                    Widget_Notice::alloc()->set("无备份数据，请先创建备份", "error");
+                    Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                } catch (Exception $exception) {
+                }
             ?>
             <?php
             } ?>
@@ -261,14 +406,20 @@ function backupThemeData()
             ) {
 
                 $db->query($db->delete("table.options")->where("name = ?", "theme:" . $name . "_backup"));
-                Notice::alloc()->set("删除备份成功", "success");
-                Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                try {
+                    Widget_Notice::alloc()->set("删除备份成功", "success");
+                    Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                } catch (Exception $exception) {
+                }
             ?>
             <?php
             } else {
 
-                Notice::alloc()->set("无备份数据，无法删除", "success");
-                Options::alloc()->response->redirect(Common::url("options-theme.php", Options::alloc()->adminUrl));
+                try {
+                    Widget_Notice::alloc()->set("无备份数据，无法删除", "success");
+                    Widget_Options::alloc()->response->redirect(Common::url("options-theme.php", Widget_Options::alloc()->adminUrl));
+                } catch (Exception $exception) {
+                }
             ?>
             <?php
             } ?>
@@ -279,7 +430,7 @@ function backupThemeData()
     ?>
 
     </form>
-    <?php echo '<br/><div class="message error">请先点击右下角的保存设置按钮，创建备份！<br/><br/><form class="backup" action="?calm_backup" method="post">
+    <?php echo '<div class="text-xs">请先点击右下角的保存设置按钮，再创建备份！<br/><br/><form class="backup" action="?calm_backup" method="post">
     <input type="submit" name="type" class="btn primary" value="创建备份" />
     <input type="submit" name="type" class="btn primary" value="还原备份" />
     <input type="submit" name="type" class="btn primary" value="删除备份" /></form></div>';

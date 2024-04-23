@@ -1,8 +1,16 @@
 let globalData = {
     webSiteHomeUrl: '',
     loadMorePage: 1,
-    totalPage: 0
+    totalPage: 0,
+    playMusicId: 0,
+    audio: new Audio()
 };
+
+let lazyLoadInstance = new LazyLoad({
+    elements_selector: '[data-src]',
+    threshold: 0,
+    data_src: 'src'
+});
 
 window.onload = async () => {
     // 网站接口请求地址前缀
@@ -14,6 +22,11 @@ window.onload = async () => {
         globalData.totalPage = parseInt(document.querySelector('._totalPage').value);
     }
 
+    globalData.audio.addEventListener('ended', function () {
+        refreshAudioUI();
+    });
+
+    printCopyright();
     loadQW();
     clickQW();
     clickSS();
@@ -44,7 +57,7 @@ window.onload = async () => {
         // 底部加载中的html
         loadingHtml: generateHtml('-- 加载中 --'),
         // 底部没有更多数据的html
-        noMoreDataHtml: generateHtml('-- 没有更多数据了 --'),
+        noMoreDataHtml: generateHtml('-- 已经到底了 --'),
         // 底部出现异常的html
         exceptionHtml: generateHtml('-- 出现异常 --'),
         loadMore: async function (sl) {
@@ -68,9 +81,33 @@ window.onload = async () => {
         }
     });
 
-    $(".go-back").on('click',function(){
-        window.history.back();
+    $(".go-back").on('click', function () {
+        window.location.href = "/";
     });
+
+    $(window).scroll(function () {
+        let headerHeight = $("header").height();
+        let topFixedHeight = $("#top-fixed").height();
+        if ($(this).scrollTop() + topFixedHeight > headerHeight) {
+            $('#top-fixed').addClass('bg-[#f0f0f0]');
+            $('#top-fixed').addClass('dark:bg-black/30');
+            $('#top-fixed').addClass('backdrop-blur-md');
+            $("#friend-light").addClass('hidden');
+            $("#friend-dark").removeClass('hidden');
+            $("#back-light").addClass('hidden');
+            $("#back-dark").removeClass('hidden');
+        } else {
+            $('#top-fixed').removeClass('bg-[#f0f0f0]');
+            $('#top-fixed').removeClass('dark:bg-black/30');
+            $('#top-fixed').removeClass('backdrop-blur-md');
+            $("#friend-light").removeClass('hidden');
+            $("#friend-dark").addClass('hidden');
+            $("#back-light").removeClass('hidden');
+            $("#back-dark").addClass('hidden');
+        }
+    });
+
+    lazyLoadInstance.update();
 };
 
 /**
@@ -100,7 +137,7 @@ function clickQW() {
     });
 }
 
-// 点击收缩按钮
+// 点击收起按钮
 function clickSS() {
     $(".ss").off('click');
     $(".ss").on('click', function (e) {
@@ -140,7 +177,7 @@ window.addEventListener('click', (event) => {
     }
     // 隐藏所有互动悬浮框
     hiddenHudongModal();
-    removeAllCommentForm();
+    // removeAllCommentForm();
 });
 
 /**
@@ -184,27 +221,42 @@ function clickHudong() {
         let hudongElement = e.target;
 
         hiddenHudongModal();
-        removeAllCommentForm();
 
         let modal = $(hudongElement).next();
         modal.removeClass('hidden');
     });
 }
+
 /**
  * 点击评论
  */
 function clickComment() {
     $(".comment-to").off('click');
     $(".comment-to").on('click', function (e) {
-        removeAllCommentForm();
 
         let cid = $(e.target).data('cid');
         let coid = $(e.target).data('coid');
+
+        // 找到已有的评论框
+        var existsCommentFormCoid = $(".comment-form").data("coid");
+        var existsCommentFormCid = $(".comment-form").data("cid");
+        if (existsCommentFormCoid === 'undefined') existsCommentFormCoid = undefined;
+        if (existsCommentFormCid === 'undefined') existsCommentFormCid = undefined;
+
+        var hasCommentForm = $(".comment-form").length > 0;
+
+        removeAllCommentForm();
+
+        if (hasCommentForm && existsCommentFormCoid === coid && existsCommentFormCid === cid) {
+            return;
+        }
+
         let name = $(e.target).data('name');
 
         if (coid == undefined) {
             // 如果没有coid，那么就在最下方显示评论框
-            document.querySelector('.comment-ul-cid-' + cid).insertAdjacentHTML('beforeend', getCommentFormHtml(cid));
+            // document.querySelector('.comment-ul-cid-' + cid).insertAdjacentHTML('beforeend', getCommentFormHtml(cid));
+            $('.comment-ul-cid-' + cid).prepend(getCommentFormHtml(cid));
         } else {
             //有coid，在对应评论处显示评论框
             document.querySelector('.comment-li-coid-' + coid).insertAdjacentHTML('afterend', getCommentFormHtml(cid, coid, name));
@@ -272,17 +324,17 @@ function clickComment() {
                         if (param.parent > 0) {
                             //有coid，在对应评论处显示评论框
                             document.querySelector('.comment-li-coid-' + param.parent).insertAdjacentHTML('afterend', `
-                                <li class="pos-rlt comment-li-coid-${response.data.comment.coid}">
-                        <div class="comment-body">
-                            <span class="text-[14px] text-color-link">
-                                <a href="${response.data.comment.url}" target="_blank" class="cursor-pointer text-color-link no-underline">${response.data.comment.author}</a>
-                            </span>
-                            <span class="text-[14px]">回复</span>
-                            <span class="text-[14px] text-color-link">${name}</span>
-                            <span data-separator=":" class="before:content-[attr(data-separator)] text-[14px] cursor-help comment-to" data-coid="${response.data.comment.coid}" data-cid="${response.data.comment.cid}" data-name="${response.data.comment.author}">${param.text}</span>
-                            ${waiting}
-                        </div>
-                    </li>`);
+                                <li class="pos-rlt comment-li-coid-${response.data.comment.coid} pb-1 px-2 first-of-type:pt-2">
+                                    <div class="comment-body">
+                                        <span class="text-[14px] text-color-link">
+                                            <a href="${response.data.comment.url}" target="_blank" class="cursor-pointer text-color-link no-underline">${response.data.comment.author}</a>
+                                        </span>
+                                        <span class="text-[14px]">回复</span>
+                                        <span class="text-[14px] text-color-link">${name}</span>
+                                        <span data-separator=":" class="before:content-[attr(data-separator)] text-[14px] cursor-help comment-to" data-coid="${response.data.comment.coid}" data-cid="${response.data.comment.cid}" data-name="${response.data.comment.author}">${param.text}</span>
+                                        ${waiting}
+                                    </div>
+                                </li>`);
 
                         } else {
                             // 如果没有coid，那么就在最下方显示评论框
@@ -328,6 +380,7 @@ function clickLike() {
         let param = { cid: cid, agree: agree };
         axios.post(globalData.webSiteHomeUrl + '/api/like', param, { headers: { 'content-type': 'application/x-www-form-urlencoded' } })
             .then(function (response) {
+                console.log(response);
                 if (response.data.status == 1) {
                     // 点赞成功
                     if ($(".like-agree-" + cid).hasClass('hidden')) {
@@ -367,6 +420,7 @@ function clickLike() {
     });
 
 }
+
 /**
  * 隐藏所有互动悬浮框
  */
@@ -398,20 +452,31 @@ function getCommentFormHtml(cid, coid, name) {
         url = '';
     }
 
+    // 判断是否登录
+    let loginClass = "";
+    let loginIs = $("#login-is").text();
+    if (loginIs === '1') {
+        // 已登录
+        author = $.trim($("#login-screenName").text());
+        mail = $.trim($("#login-mail").text());
+        url = $.trim($("#login-url").text());
+        loginClass = "hidden";
+    }
+
     let placeholder = '回复内容';
     if (coid) {
         placeholder = '回复@' + name;
     }
     return `
-    <li class="comment-form" data-cid="${cid}" data-coid="${coid}">
+    <li class="comment-form px-2 py-2" data-cid="${cid}" data-coid="${coid}">
     <div class="bg-white dark:bg-[#262626] p-2 rounded-sm border-1 border-solid border-[#07c160]">
-        <div class="grid grid-cols-3 gap-2">
-            <input placeholder="昵称" class="border-0 outline-none bg-color-primary dark:bg-[#323232] p-1 rounded-sm input-author dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${author}" />
-            <input placeholder="网址" class="border-0 outline-none bg-color-primary dark:bg-[#323232] p-1 rounded-sm input-url dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${url}" />
-            <input placeholder="邮箱" class="border-0 outline-none bg-color-primary dark:bg-[#323232] p-1 rounded-sm input-mail dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${mail}" />
+        <div class="grid grid-cols-3 gap-2 ${loginClass}">
+            <input placeholder="昵称" class="border-0 outline-none bg-color-primary dark:bg-[#262626] p-1 rounded-sm input-author dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${author}" />
+            <input placeholder="网址" class="border-0 outline-none bg-color-primary dark:bg-[#262626] p-1 rounded-sm input-url dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${url}" />
+            <input placeholder="邮箱" class="border-0 outline-none bg-color-primary dark:bg-[#262626] p-1 rounded-sm input-mail dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" value="${mail}" />
         </div>
         <div class="mt-2">
-            <input placeholder="${placeholder}" class="border-0 outline-none w-full rounded-sm p-1 input-text dark:bg-[#323232] dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" />
+            <input placeholder="${placeholder}" class="border-0 outline-none w-full rounded-sm p-1 input-text dark:bg-[#262626] dark:text-[#cccccc]" data-cid="${cid}" data-coid="${coid}" />
         </div>
         <div class="face-container hidden" data-cid="${cid}" data-coid="${coid}">
 <span class="cursor-pointer face-item" data-cid="${cid}" data-coid="${coid}">😀</span>
@@ -502,7 +567,7 @@ function getCommentFormHtml(cid, coid, name) {
 <span class="cursor-pointer face-item" data-cid="${cid}" data-coid="${coid}">🤕</span>
         </div>
         <div class="flex justify-end mt-2">
-            <div class="face mr-2 cursor-pointer" data-cid="${cid}" data-coid="${coid}"></div>
+            <div class="face dark:face-dark mr-2 cursor-pointer" data-cid="${cid}" data-coid="${coid}"></div>
             <button class="btn-comment bg-[#07c160] border-0 outline-none text-white cursor-pointer rounded-sm" data-cid="${cid}" data-coid="${coid}">回复</button>
         </div>
     </div>
@@ -526,6 +591,7 @@ function generateHtml(html) {
 
 let imgElementArray = [];
 let gallery;
+
 /**
  * 大图预览。给大图元素绑定点击事件
  */
@@ -535,24 +601,9 @@ function imagePreviewAddEventListener(element) {
 }
 
 function preview(event) {
-    let cid = event.target.attributes['data-cid'].value;
-
-    if (gallery)
-        gallery.destroy();
-
-    gallery = new Viewer(document.getElementById('preview-' + cid), {
-        focus: false,
-        navbar: false,
-        rotatable: false,
-        scalable: false,
-        slideOnTouch: false,
-        title: false,
-        toggleOnDblclick: false,
-        tooltip: false,
+    Fancybox.bind("[data-fancybox]", {
+        Thumbs: false // 不显示底部图片组
     });
-
-    gallery.show();
-
 }
 
 /**
@@ -597,6 +648,9 @@ async function pjax(pageIndex, container) {
         loadQW();
         clickQW();
         clickSS();
+
+        // 异步加载
+        lazyLoadInstance.update();
     }).catch(e => {
 
     });
@@ -606,10 +660,91 @@ async function pjax(pageIndex, container) {
  * 回到顶部
  */
 var timeOut;
+
 function scrollToTop() {
-    if (document.body.scrollTop != 0 || document.documentElement.scrollTop != 0) {
-        window.scrollBy(0, -50);
-        timeOut = setTimeout('scrollToTop()', 10);
+    // if (document.body.scrollTop != 0 || document.documentElement.scrollTop != 0) {
+    //     window.scrollBy(0, -50);
+    //     timeOut = setTimeout('scrollToTop()', 10);
+    // } else clearTimeout(timeOut);
+    // 使用Anime.js进行平滑滚动
+    anime({
+        targets: 'html, body',
+        scrollTop: 0,
+        duration: 500,
+        easing: 'linear'
+    });
+}
+
+/**
+ * 加载音乐
+ */
+function loadAudio(src) {
+    globalData.audio.src = src;
+    globalData.audio.load();
+}
+
+/**
+ * 播放音乐
+ */
+function playAudio(cid, src) {
+    if (globalData.playMusicId != cid) {
+        loadAudio(src);
+        globalData.playMusicId = cid;
     }
-    else clearTimeout(timeOut);
+    globalData.audio.play();
+
+    refreshAudioUI();
+
+    // 隐藏播放按钮，显示暂停按钮
+    $("#music-play-" + cid).addClass("hidden");
+    $("#music-pause-" + cid).removeClass("hidden");
+
+    $("#music-img-" + cid).addClass("rotate-animation");
+}
+
+function printCopyright() {
+    console.log('%cIcefox主题 By xiaopanglian v1.8.0 %chttps://0ru.cn', 'color: white;  background-color: #99cc99; padding: 10px;', 'color: white; background-color: #ff6666; padding: 10px;');
+}
+
+function pauseAudio(cid) {
+    globalData.audio.pause();
+    // 隐藏暂停按钮，显示播放按钮
+    $("#music-play-" + cid).removeClass("hidden");
+    $("#music-pause-" + cid).addClass("hidden");
+
+    $("#music-img-" + cid).removeClass("rotate-animation");
+}
+
+/**
+ * 刷新播放器UI
+ */
+function refreshAudioUI() {
+
+    // 隐藏其他文章的播放器播放按钮
+    $.each($(".music-img"), function (index, item) {
+        $(item).removeClass("rotate-animation");
+    });
+    $.each($(".music-play"), function (index, item) {
+        $(item).removeClass("hidden");
+    });
+    $.each($(".music-pause"), function (index, item) {
+        $(item).addClass("hidden");
+    });
+
+}
+
+/**
+ * 打开朋友圈弹框
+ */
+function showFriendModal() {
+    $("#friend-modal").show();
+    $("body").addClass("overflow-hidden");
+}
+
+/**
+ * 关闭朋友圈弹框
+ */
+function closeFriendModal() {
+    $("#friend-modal").hide();
+    $("body").removeClass("overflow-hidden");
 }

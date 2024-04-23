@@ -10,17 +10,73 @@ function getCommentByCid($cid, $parent = 0, $len = 5): array
         ->from('table.comments')
         ->where('cid = ?', $cid)
         ->where('parent = ?', $parent)
+        ->where('type = ?', 'comment')
         ->where('status = ?', 'approved')
         ->order('created', Typecho_Db::SORT_DESC)
         ->limit($len);
     return $db->fetchAll($select);
 }
+/**
+ * 根据文章id获取最新子评论列表
+ */
+function getChildCommentByCid($cid, $len = 5): array
+{
+    $db = Typecho_Db::get();
+    $select = $db->select('c1.coid,c1.author,c1.authorId,c1.ownerId,c1.mail,c1.text,c1.created,c1.parent,c1.url,c1.cid,c2.author as toAuthor,c2.authorId as toAuthorId')
+        ->from('table.comments as c1')
+        ->join('table.comments as c2', 'c1.parent = c2.coid', Typecho_Db::LEFT_JOIN)
+        ->where('c1.cid = ?', $cid)
+        ->where('c1.type = ?', 'comment')
+        ->where('c1.status = ?', 'approved')
+        ->order('c1.created', Typecho_Db::SORT_ASC)
+        ->limit($len);
+    return $db->fetchAll($select);
+}
+
+/**
+ * 获取下级评论
+ */
+function getChildCommentByCidOfComplete($parent, $list)
+{
+    $result = [];
+    $newList = array_filter($list, function ($li) use ($parent) {
+        return $li['parent'] == $parent;
+    });
+    foreach ($newList as $item) {
+        array_push($result, $item);
+
+        $result = array_merge($result, getChildCommentByCidOfComplete($item['coid'], $list));
+    }
+    return $result;
+}
+
+/**
+ * 获取评论列表（包含子级）
+ */
+function getChildComments($coid, $list)
+{
+    $result = [];
+    $newList = array_filter($list, function ($li) use ($coid) {
+        return $li['parent'] == $coid;
+    });
+
+    foreach ($newList as $item) {
+        array_push($result, $item);
+        $childs = getChildCommentByCidOfComplete($item['coid'], $list);
+
+        foreach ($childs as $child) {
+            array_push($result, $child);
+        }
+    }
+    return $result;
+}
 
 /**
  * 根据文章id获取评论数量
  */
-function getCommentCountByCid($cid){
-    
+function getCommentCountByCid($cid)
+{
+
     $db = Typecho_Db::get();
     $prefix = $db->getPrefix();
 
@@ -46,21 +102,31 @@ function getAgreeNumByCid($cid)
 
     //  查询出点赞数量
     $agree = $db->fetchRow($db->select('agree')->from('table.contents')->where('cid = ?', $cid));
-    //  获取记录点赞的 Cookie
-    $AgreeRecording = Typecho_Cookie::get('typechoAgreeRecording');
-    //  判断记录点赞的 Cookie 是否存在
-    if (empty($AgreeRecording)) {
-        //  如果不存在就写入 Cookie
-        Typecho_Cookie::set('typechoAgreeRecording', json_encode(array(0)));
-    }
+    
+    try {
+        //  获取记录点赞的 Cookie
+        $AgreeRecording = Typecho_Cookie::get('typechoAgreeRecording');
+        //  判断记录点赞的 Cookie 是否存在
+        if (empty($AgreeRecording)) {
+            //  如果不存在就写入 Cookie
+            Typecho_Cookie::set('typechoAgreeRecording', json_encode(array(0)));
+        }
 
-    //  返回
-    return array(
-        //  点赞数量
-        'agree' => $agree['agree'],
-        //  文章是否点赞过
-        'recording' => in_array($cid, json_decode(Typecho_Cookie::get('typechoAgreeRecording'))) ? true : false
-    );
+        //  返回
+        return array(
+            //  点赞数量
+            'agree' => $agree['agree'],
+            //  文章是否点赞过
+            'recording' => in_array($cid, json_decode(Typecho_Cookie::get('typechoAgreeRecording'))) ? true : false
+        );
+    } catch (Exception $exception) {
+        return array(
+            //  点赞数量
+            'agree' => $agree['agree'],
+            //  文章是否点赞过
+            'recording' => false
+        );
+    }
 }
 
 /**

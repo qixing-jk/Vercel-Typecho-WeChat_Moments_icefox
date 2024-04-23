@@ -5,7 +5,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
 
 ?>
 
-<div class="fixed left-10 bottom-10 text-gray-300 text-[12px] side-area">
+<div class="fixed left-10 bottom-10 text-gray-300 text-[12px] side-area side-area-left">
     <a href="https://xiaopanglian.com" class="cursor-pointer text-gray-300" target="_blank">Icefox Theme 原作者</a> .
     <a href="https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd" class="cursor-pointer text-gray-600" target="_blank">部署教程</a>
     <?php
@@ -27,8 +27,9 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
                 d="M329.728 274.133333l35.157333-35.157333a21.333333 21.333333 0 1 0-30.165333-30.165333l-35.157333 35.157333-35.114667-35.157333a21.333333 21.333333 0 0 0-30.165333 30.165333l35.114666 35.157333-35.114666 35.157334a21.333333 21.333333 0 1 0 30.165333 30.165333l35.114667-35.157333 35.157333 35.157333a21.333333 21.333333 0 1 0 30.165333-30.165333z"
                 fill="#030835" p-id="6109" class="cursor-pointer"></path>
         </svg>
-        <svg t="1706667797282" class="icon cursor-pointer" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
-            p-id="8226" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36" @click="darkMode=false" x-show="darkMode==true">
+        <svg t="1706667797282" class="icon cursor-pointer" viewBox="0 0 1024 1024" version="1.1"
+            xmlns="http://www.w3.org/2000/svg" p-id="8226" xmlns:xlink="http://www.w3.org/1999/xlink" width="36"
+            height="36" @click="darkMode=false" x-show="darkMode==true">
             <path
                 d="M512 170.682c-11.782 0-21.312-9.562-21.312-21.342V21.344C490.688 9.562 500.22 0.016 512 0.016c11.812 0 21.344 9.546 21.344 21.328V149.34c0 11.78-9.532 21.342-21.344 21.342zM512 1023.984s0.032 0 0 0c-11.75 0-21.312-9.562-21.312-21.312v-127.994c0-11.812 9.562-21.376 21.344-21.376 11.782 0 21.312 9.562 21.312 21.376v127.994c0 11.75-9.532 21.312-21.344 21.312z"
                 fill="#F6BB42" p-id="8227" class="cursor-pointer"></path>
@@ -49,7 +50,8 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
                 fill="#F6BB42" p-id="8232" class="cursor-pointer"></path>
         </svg>
     </div>
-    <div class="w-[48px] h-[48px] cursor-pointer" onclick="scrollToTop(); return false;">
+    <div class="w-[48px] h-[48px] cursor-pointer rounded-3xl bg-[#E8E9EC] flex justify-center items-center"
+        onclick="scrollToTop(); return false;">
         <svg t="1700186173794" class="icon cursor-pointer" viewBox="0 0 1024 1024" version="1.1"
             xmlns="http://www.w3.org/2000/svg" p-id="4023" xmlns:xlink="http://www.w3.org/1999/xlink" width="48"
             height="48">
@@ -85,7 +87,8 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
     </div>
 </div>
 
-<div class="hidden">
+<div class="hidden px-2 py-2 first-of-type:pt-2">
+    <div class="bg-white dark:bg-black/30 backdrop-blur-md"></div>
     <input class="webSiteHomeUrl" value="<?php echo getWebsiteHomeUrl(); ?>" />
     <input class="_currentPage" value="<?php if ($this->_currentPage > 1)
         echo $this->_currentPage;
@@ -97,9 +100,12 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
     <li>
         <div class="bg-white dark:bg-[#262626] p-2 rounded-sm border-1 border-solid border-[#07c160]">
             <div class="grid grid-cols-3 gap-2">
-                <input placeholder="昵称" class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
-                <input placeholder="网址" class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
-                <input placeholder="邮箱" class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
+                <input placeholder="昵称"
+                    class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
+                <input placeholder="网址"
+                    class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
+                <input placeholder="邮箱"
+                    class="border-0 outline-none bg-color-primary p-1 rounded-sm dark:bg-[#323232] dark:text-[#cccccc]" />
             </div>
             <div class="mt-2">
                 <input placeholder="回复内容" class="border-0 outline-none w-full rounded-sm p-1 dark:text-[#cccccc]" />
@@ -111,6 +117,31 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
             </div>
         </div>
     </li>
+    <div class="animate-spin"></div>
+    <?php
+    // 检查用户是否登录
+    if ($this->user->hasLogin()) {
+        // 用户已登录，获取用户信息
+        $user = $this->user;
+        $screenName = $user->screenName; // 用户昵称
+        $mail = $user->mail; // 用户邮箱
+        $url = $user->url; // 用户网址
+
+        ?>
+        <div id="login-is">1</div>
+        <div id="login-screenName">
+            <?php echo $screenName; ?>
+        </div>
+        <div id="login-mail">
+            <?php echo $mail; ?>
+        </div>
+        <div id="login-url">
+            <?php echo $url; ?>
+        </div>
+        <?php
+    }
+    ?>
+</div>
 </div>
 </body>
 
