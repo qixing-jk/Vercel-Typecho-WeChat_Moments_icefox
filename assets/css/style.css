@@ -1,0 +1,339 @@
+@unocss all;
+
+@font-face {
+    font-display: swap;
+    font-family: HarmonyOS-Sans;
+    src: url('../fonts/HarmonyOS-Sans.woff2') format("truetype");
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes grow {
+    0% {
+        background-size: 100% 100%;
+    }
+
+    100% {
+        background-size: 150% 150%;
+    }
+}
+
+@keyframes grow {
+    0% {
+        background-size: 100% 100%;
+    }
+
+    100% {
+        background-size: 150% 150%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+
+    input,
+    textarea,
+    .ivu-select {
+        font-size: 16px !important;
+    }
+}
+
+/* 隐藏视频的默认控制栏 */
+/* video::-webkit-media-controls {
+    display:none !important;
+} */
+
+.rotate-animation {
+    animation: rotate 5s linear infinite;
+}
+
+.text-color-link {
+    color: #576b95;
+}
+
+.bg-color-primary {
+    background-color: #f7f7f7;
+}
+
+* {
+    cursor: default;
+    font-family: 'HarmonyOS-Sans', '微软雅黑', "Microsoft Yahei";
+}
+
+body {
+    cursor: default;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    font-family: 'HarmonyOS-Sans', '微软雅黑', "Microsoft Yahei";
+}
+
+input::placeholder {
+    color: #c6c6c6;
+}
+
+.hudong {
+    width: 100%;
+    height: 100%;
+    background-image: url('../svgs/post.fun.ico.light.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #f7f7f7;
+    cursor: pointer;
+    color: transparent;
+}
+
+.ico-back {
+    width: 20px;
+    height: 20px;
+    background-image: url('../svgs/post.top.back.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    cursor: pointer;
+    color: transparent;
+}
+
+.hudong:hover {
+    background-color: #dedede;
+}
+
+.like {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.aside.like.light.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    color: transparent;
+}
+
+.unlike {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.aside.like.light.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    color: transparent;
+}
+
+.hudong-container {
+    width: 120px;
+    border-radius: 5px;
+}
+
+.hudong-like {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.fun.btn.like.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+}
+
+.hudong-liked {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.fun.btn.liked.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+}
+
+.hudong-comment {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.fun.btn.comment.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+}
+
+.face {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.comment.face.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+}
+
+.face-dark {
+    width: 18px;
+    height: 18px;
+    background-image: url('../svgs/post.comment.face.dark.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+}
+
+.article-content a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    color: #111111;
+}
+
+.dark .article-content a {
+    color: #cccccc;
+}
+
+.article-content a:hover {
+    cursor: pointer;
+}
+
+.article-content img {
+    max-width: 100%;
+}
+
+.article-content>p {
+    margin: 0;
+}
+
+.article-content>ul {
+    margin: 0;
+}
+
+.article-content pre>code {
+    text-wrap: wrap;
+}
+
+.multi-pictures {
+    width: calc(100% - 45px);
+}
+
+.scrollload-bottom {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 12px;
+    color: #333;
+}
+
+.dark .scrollload-bottom {
+    color: #cccccc;
+}
+
+.comment-waiting {
+    font-size: 12px;
+    background-color: #e6e6e6;
+    color: #999;
+}
+
+.friend-container {
+    width: 32rem;
+    max-height: 50%;
+}
+
+/* WebKit 浏览器滚动条样式 */
+.friend-container::-webkit-scrollbar {
+    width: 12px;
+    /* 设置滚动条宽度 */
+}
+
+.friend-container::-webkit-scrollbar-track {
+    background: #f2f2f2;
+    /* 设置滚动条轨道颜色 */
+}
+
+.friend-container::-webkit-scrollbar-thumb {
+    background: #888;
+    /* 设置滚动条滑块颜色 */
+}
+
+.friend-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* 设置鼠标悬停在滚动条滑块上时的颜色 */
+}
+
+@media screen and (min-width: 567px) {
+    .main-container {
+        max-width: 567px;
+    }
+
+    .top-container {
+        max-width: 567px;
+    }
+
+    .side-area {
+        display: block;
+    }
+
+    .music-card {
+        height: 80px;
+        width: 66.66%;
+    }
+
+    .music-card-text {
+        font-size: 15px;
+        width: 160px;
+    }
+
+    .music-card-play-position {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+}
+
+@media screen and (max-width: 567px) {
+    .main-container {
+        width: 100%;
+        min-width: 300px;
+    }
+
+    .top-container {
+        width: 100%;
+        min-width: 300px;
+    }
+
+    .side-area-left {
+        display: none;
+    }
+
+    .side-area {
+        /*display: none;*/
+        right: 1rem;
+        bottom: 2rem;
+    }
+
+    .friend-container {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .side-area>div {
+        width: 32px;
+        height: 32px;
+    }
+
+    .side-area svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .music-card {
+        height: 60px;
+        width: 75%;
+    }
+
+    .music-card-text {
+        font-size: 12px;
+        width: 100px;
+    }
+
+    .music-card-play-position {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+    }
+}

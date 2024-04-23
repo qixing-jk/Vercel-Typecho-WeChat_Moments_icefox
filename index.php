@@ -6,7 +6,7 @@
  *
  * @package Icefox
  * @author 小胖脸
- * @version 1.3.0
+ * @version 1.8.0
  * @link http://xiaopanglian.com/
  */
 
@@ -18,16 +18,20 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
 
 
 <div class="bg-white dark:bg-[#323232] dark:text-[#cccccc] mx-auto main-container" :class="{'dark':darkMode}">
-
     <?php $this->need('/components/option-header.php'); ?>
 
-    <?php $this->need('/components/option-article-top.php'); ?>
+    <?php $this->need('/components/post-list-top.php'); ?>
+
+
+    <?php // $this->need('/components/option-article-top.php');  ?>
 
     <div class="article-container">
-        <?php while ($this->next()): ?>
-            <?php $this->need('/components/option-article.php'); ?>
-        <?php endwhile; ?>
+        <?php $this->need('/components/post-list.php'); ?>
+        <?php //while ($this->next()):  ?>
+        <?php //$this->need('/components/option-article.php');  ?>
+        <?php //endwhile;  ?>
     </div>
 </div><!-- end #main-->
 
+<?php $this->need('/components/modal.php'); ?>
 <?php $this->need('/components/footer.php'); ?>

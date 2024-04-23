@@ -1,5 +1,7 @@
 <?php
-// 详情页
+/**
+ * 置顶文章列表渲染
+ */
 if (!defined('__TYPECHO_ROOT_DIR__'))
     exit;
 $isSingle = false;
@@ -11,28 +13,24 @@ if ($this->is('single')) {
 }
 ?>
 
-<?php $this->need('/components/header.php'); ?>
+<?php
+$topCids = array_filter(explode('||', $this->options->topPost));
 
-
-<?php $this->need('/components/single-top.php'); ?>
-<div class="bg-white dark:bg-[#323232] dark:text-[#cccccc] mx-auto main-container">
-
-    <?php $this->need('/components/option-header.php'); ?>
-
-    <div class="article-container">
-        <?php $this->widget('Widget_Archive@icefox' . $this->cid, 'pageSize=1&type=post', 'cid=' . $this->cid)->to($item); ?>
-        <?php $item = (object) $item; ?>
-        <article class="flex flex-row border-b borer-b-2 dark:border-gray-600 border-gray-200 pt-5 pl-5 pr-5">
+foreach ($topCids as $cid): ?>
+    <?php $this->widget('Widget_Archive@icefox' . $cid, 'pageSize=1&type=post', 'cid=' . $cid)->to($item); ?>
+    <?php $item = (object) $item; ?>
+    <article class="flex flex-row border-b borer-b-2 dark:border-gray-800 border-gray-200 pt-5 pl-5 pr-5">
         <div class="mr-3">
             <div class="w-9 h-9">
                 <img src="<?php echo $this->options->userAvatarUrl ?>" class="w-9 h-9 object-cover rounded-lg" />
             </div>
         </div>
         <div
-            class="w-full border-t-0 border-l-0 border-r-0 border-b-1 dark:border-gray-600 border-gray-100 border-solid pb-1">
+            class="w-full border-t-0 border-l-0 border-r-0 border-b-1 dark:border-gray-800 border-gray-100 border-solid pb-1">
             <section class="flex flex-row justify-between items-center mb-1">
                 <span class="text-color-link cursor-default text-[14px]">
-                    <?php print_r(_getUserScreenNameByCid($item->cid)['screenName']); ?>
+                    <a href="<?php echo $item->permalink; ?>" class="cursor-pointer text-color-link no-underline"><?php print_r(_getUserScreenNameByCid($item->cid)['screenName']); ?></a>
+                    <span class="text-[12px] p-1 text-red rounded-sm">置顶</span>
                 </span>
                 <?php
                 $advertiseData = getArticleFieldsByCid($item->cid, 'isAdvertise');
@@ -74,7 +72,7 @@ if ($this->is('single')) {
                 ?>
                 <section class="w-full mb-1">
                     <figure class="flex overflow-hidden rounded-sm music-card m-0 bg-cover bg-center "
-                        style="background-image: url('<?php echo $musicArr[3]; ?>')">
+                        style="background-image: url('<?php echo $musicArr[3]; ?>');background-color:#eee;">
                         <div
                             class="w-full h-full bg-cover bg-center backdrop-blur-lg backdrop-filter bg-opacity-50 flex flex-row relative">
                             <img src="<?php echo $musicArr[3]; ?>"
@@ -278,7 +276,7 @@ if ($this->is('single')) {
                 $recording = $agreeNum['recording'];
                 ?>
                 <div
-                    class="bg-[#f7f7f7] dark:bg-[#262626] px-3 py-2 bottom-shadow items-center border-1 <?php echo $dzClass; ?> dark:border-gray-600 border-gray-100 <?php echo ($agree > 0 ? 'flex' : 'hidden'); ?> like-agree-<?php echo $item->cid; ?>">
+                    class="bg-[#f7f7f7] dark:bg-[#262626] px-3 py-2 bottom-shadow items-center border-1 <?php echo $dzClass; ?> dark:border-gray-800 border-gray-100 <?php echo ($agree > 0 ? 'flex' : 'hidden'); ?> like-agree-<?php echo $item->cid; ?>">
                     <span class="like inline-block mr-2"></span>
                     <span class="text-[14px] ">
                         <span class="text-color-link text-[14px]">
@@ -385,7 +383,7 @@ if ($this->is('single')) {
             </section>
         </div>
     </article>
-    </div>
-</div><!-- end #main-->
 
-<?php $this->need('/components/single-footer.php'); ?>
+    <?php
+endforeach;
+?>
