@@ -7,8 +7,12 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
 
 // 设置版本号
 if (!defined("__THEME_VERSION__")) {
-    define("__THEME_VERSION__", "1.8.0");
+    define("__THEME_VERSION__", "2.0.0 beta");
 }
+
+// 设置默认头像源为https://cravatar.cn/avatar/
+// define('__TYPECHO_GRAVATAR_PREFIX__', 'https://cravatar.cn/avatar/');
+
 //icefox 核心包
 include_once 'core/core.php';
 
@@ -43,11 +47,21 @@ function themeConfig($form)
                     'userAvatarUrl',
                     null,
                     null,
-                    _t('用户头像'),
+                    _t('站点顶部用户头像'),
                     _t('在这里填入一个图片 URL 地址')
                 );
 
                 $form->addInput($userAvatarUrl);
+
+                $archiveUserAvatarUrl = new Typecho_Widget_Helper_Form_Element_Text(
+                    'archiveUserAvatarUrl',
+                    null,
+                    null,
+                    _t('文章侧用户头像<span style="color:red;">(如果不设置，默认使用头像源地址的头像)</span>'),
+                    _t('在这里填入一个图片 URL 地址')
+                );
+
+                $form->addInput($archiveUserAvatarUrl);
 
                 $avatarTitle = new Typecho_Widget_Helper_Form_Element_Text(
                     'avatarTitle',
@@ -58,6 +72,15 @@ function themeConfig($form)
                 );
 
                 $form->addInput($avatarTitle);
+
+                $about = new Typecho_Widget_Helper_Form_Element_Text(
+                    'about',
+                    null,
+                    null,
+                    _t('顶部头像旁名称跳转地址'),
+                    _t('顶部头像旁名称跳转地址')
+                );
+                $form->addInput($about);
 
                 $topPost = new Typecho_Widget_Helper_Form_Element_Text(
                     "topPost",
@@ -77,6 +100,27 @@ function themeConfig($form)
                 );
                 $form->addInput($beian);
 
+                $policeBeian = new Typecho_Widget_Helper_Form_Element_Text(
+                    "policeBeian",
+                    null,
+                    null,
+                    "公安网备号",
+                    "网备号和跳转地址通过||分隔开<br>例如：川公安网备000000001号 || http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=00000001"
+                );
+                $form->addInput($policeBeian);
+
+                $observAutoPlayVideo = new Typecho_Widget_Helper_Form_Element_Radio(
+                    'observAutoPlayVideo',
+                    [
+                        'yes' => _t("是"),
+                        'no' => _t("否")
+                    ],
+                    'yes',
+                    _t('是否开启可视范围内视频自动播放'),
+                    _t('默认开启')
+                );
+                $form->addInput($observAutoPlayVideo);
+
                 $autoPlayVideo = new Typecho_Widget_Helper_Form_Element_Radio(
                     'autoPlayVideo',
                     [
@@ -84,7 +128,7 @@ function themeConfig($form)
                         'no' => _t("否")
                     ],
                     'yes',
-                    _t('是否默认播放视频')
+                    _t('是否默认播放视频<span style="color:red;">（开启可视范围内自动播放功能后，此功能失效）</span>')
                 );
                 $form->addInput($autoPlayVideo);
 
@@ -99,6 +143,15 @@ function themeConfig($form)
                 );
                 $form->addInput($autoMutedPlayVideo);
 
+                $avatarSource = new Typecho_Widget_Helper_Form_Element_Text(
+                    "avatarSource",
+                    null,
+                    null,
+                    "主题左侧头像源",
+                    "不填则默认为https://cravatar.cn/avatar/"
+                );
+                $form->addInput($avatarSource);
+
                 $defaultThemeColor = new Typecho_Widget_Helper_Form_Element_Radio(
                     'defaultThemeColor',
                     [
@@ -110,14 +163,25 @@ function themeConfig($form)
                 );
                 $form->addInput($defaultThemeColor);
 
-                $neteasyCloudMusic = new Typecho_Widget_Helper_Form_Element_Text(
-                    'neteasyCloudMusic',
-                    null,
-                    null,
-                    _t('网易云音乐歌单地址（功能开发中）'),
-                    _t('网页顶部播放器播放，目前只支持网易云音乐。')
+                $enableTopMusic = new Typecho_Widget_Helper_Form_Element_Radio(
+                    'enableTopMusic',
+                    [
+                        'yes' => _t("是"),
+                        'no' => _t("否")
+                    ],
+                    'yes',
+                    _t('是否启用顶部网易云音乐')
                 );
-                $form->addInput($neteasyCloudMusic);
+                $form->addInput($enableTopMusic);
+
+                $topMusicList = new Typecho_Widget_Helper_Form_Element_Textarea(
+                    'topMusicList',
+                    null,
+                    null,
+                    _t('顶部网易云音乐歌曲列表'),
+                    _t('网页顶部播放器播放，每一行一首歌，格式如下<br>网易云音乐id || 音乐封面图')
+                );
+                $form->addInput($topMusicList);
 
                 $friendLinks = new Typecho_Widget_Helper_Form_Element_Textarea(
                     "friendLinks",
@@ -127,6 +191,15 @@ function themeConfig($form)
                     "使用||分隔，每一行一个友情链接。格式如下<br>logo || 名称 || 链接"
                 );
                 $form->addInput($friendLinks);
+
+                $publishPageUrl = new Typecho_Widget_Helper_Form_Element_Text(
+                    "publishPageUrl",
+                    null,
+                    null,
+                    "前端发布页地址",
+                    "后台新建独立页面地址对应页面"
+                );
+                $form->addInput($publishPageUrl);
 
                 $script = new Typecho_Widget_Helper_Form_Element_Textarea(
                     "script",
@@ -218,7 +291,7 @@ function themeFields($layout)
         null,
         null,
         _t('插入音乐'),
-        _t('格式如下：<br>歌曲名称 || 专辑名称 || 播放地址 || 音乐图片')
+        _t('为兼容历史音乐，这里需要填入完整的播放地址，如果是网易云音乐，播放地址是：http://music.163.com/song/media/outer/url?id=xxxxxx.mp3，最后的xxxxxx替换为网易云音乐id。插入音乐格式如下：<br>歌曲名称 || 专辑名称 || 播放地址 || 音乐图片')
     );
     $music->input->setAttribute('class', 't-music-find');
     $layout->addItem($music);
