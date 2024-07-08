@@ -22,14 +22,27 @@ foreach ($topCids as $cid): ?>
     <article class="flex flex-row border-b borer-b-2 dark:border-gray-800 border-gray-200 pt-5 pl-5 pr-5">
         <div class="mr-3">
             <div class="w-9 h-9">
-                <img src="<?php echo $this->options->userAvatarUrl ?>" class="w-9 h-9 object-cover rounded-lg" />
+                <?php
+                $authorId = $item->authorId;
+                $archiveUserAvatarUrl = $this->options->archiveUserAvatarUrl;
+                if (!empty($archiveUserAvatarUrl)) {
+                    ?>
+                    <img src="<?php echo $archiveUserAvatarUrl; ?>" class="w-9 h-9 object-cover rounded-lg preview-image" />
+                    <?php
+                } else {
+                    ?>
+                    <img src="<?php echo getUserAvatar($authorId); ?>" class="w-9 h-9 object-cover rounded-lg preview-image" />
+                    <?php
+                }
+                ?>
             </div>
         </div>
         <div
             class="w-full border-t-0 border-l-0 border-r-0 border-b-1 dark:border-gray-800 border-gray-100 border-solid pb-1">
             <section class="flex flex-row justify-between items-center mb-1">
                 <span class="text-color-link cursor-default text-[14px]">
-                    <a href="<?php echo $item->permalink; ?>" class="cursor-pointer text-color-link no-underline"><?php print_r(_getUserScreenNameByCid($item->cid)['screenName']); ?></a>
+                    <a href="<?php echo $item->permalink; ?>"
+                        class="cursor-pointer text-color-link no-underline"><?php print_r(_getUserScreenNameByCid($item->cid)['screenName']); ?></a>
                     <span class="text-[12px] p-1 text-red rounded-sm">置顶</span>
                 </span>
                 <?php
@@ -72,12 +85,11 @@ foreach ($topCids as $cid): ?>
                 ?>
                 <section class="w-full mb-1">
                     <figure class="flex overflow-hidden rounded-sm music-card m-0 bg-cover bg-center "
-                        style="background-image: url('<?php echo $musicArr[3]; ?>');background-color:#eee;">
+                        style="background-color:#A2A3A1;">
                         <div
                             class="w-full h-full bg-cover bg-center backdrop-blur-lg backdrop-filter bg-opacity-50 flex flex-row relative">
-                            <img src="<?php echo $musicArr[3]; ?>"
-                                class="h-full w-auto aspect-square object-cover rounded-full music-img"
-                                id="music-img-<?php echo $item->cid; ?>" rotate="rotate-animation" />
+                            <img src="<?php echo $musicArr[3]; ?>" class="h-full w-auto aspect-square object-cover music-img"
+                                id="music-img-<?php echo $item->cid; ?>" />
                             <div class="flex flex-col text-white h-full justify-center pl-[5px]">
                                 <span class="mt-1 truncate music-card-text">
                                     <?php echo $musicArr[0]; ?>
@@ -89,7 +101,7 @@ foreach ($topCids as $cid): ?>
                             <div class="music-card-play-position">
                                 <img width="36" height="36"
                                     src="<?php $this->options->themeUrl('assets/svgs/music-play-light.svg'); ?>"
-                                    @click="playAudio(<?php echo $item->cid; ?>, '<?php echo $musicArr[2]; ?>')"
+                                    @click="playAudio(<?php echo $item->cid; ?>, '<?php echo $musicArr[2]; ?>', '<?php echo $musicArr[3]; ?>')"
                                     id="music-play-<?php echo $item->cid; ?>" class="music-play" />
                                 <img width="36" height="36"
                                     src="<?php $this->options->themeUrl('assets/svgs/music-pause-light.svg'); ?>"
@@ -121,12 +133,12 @@ foreach ($topCids as $cid): ?>
                         $autoMuted = '';
                     }
                     ?>
-                    <section class="grid grid-cols-3 gap-1 multi-pictures overflow-hidden mb-3"
+                    <section class="grid grid-cols-12 gap-1 multi-pictures overflow-hidden mb-3"
                         id="preview-<?php echo $item->cid; ?>">
-                        <div class="overflow-hidden rounded-lg cursor-zoom-in w-full col-span-2">
-                            <video data-src="<?php echo $friendVideo ?>" <?php echo $autoplay; ?>             <?php echo $autoMuted; ?> loop
-                                preload="auto" controls="controls" class="w-full" data-cid="<?php echo $item->cid; ?>"
-                                data-play="">您的浏览器不支持video标签
+                        <div class="overflow-hidden rounded-lg cursor-zoom-in w-full col-span-10">
+                            <video data-src="<?php echo $friendVideo ?>" <?php echo $autoplay; ?> <?php echo $autoMuted; ?> loop
+                                preload="auto" controls="controls" class="w-full js-player" data-cid="<?php echo $item->cid; ?>" data-play=""
+                                style="--plyr-color-main:#dcdfe5;" id="v-<?php echo $item->cid; ?>">您的浏览器不支持video标签
                             </video>
                         </div>
                     </section>

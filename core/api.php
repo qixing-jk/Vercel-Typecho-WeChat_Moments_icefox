@@ -216,4 +216,26 @@ function addAgree($self)
     //  返回点赞数量
     return $self->response->throwJson(array('status' => 1, 'agree' => $agree['agree']));
 }
+
+/**
+ * 根据用户id获取用户头像地址
+ */
+function getUserAvatar($authorId)
+{
+    $db = Typecho_Db::get();
+    $options = Helper::options();
+
+    $user = $db->fetchRow($db->select('table.users.mail')->from('table.users')->where('uid = ?', $authorId)->limit(1));
+
+    $mail = $user['mail'];
+
+    $avatarSource = "https://cravatar.cn/avatar/";
+    if (!empty($options->avatarSource)) {
+        $avatarSource = $options->avatarSource;
+    }
+
+    $gravatarUrl = $avatarSource . md5(strtolower(trim($mail))) . "?s=64&d=identicon";
+
+    return $gravatarUrl;
+}
 ?>

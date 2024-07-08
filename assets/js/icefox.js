@@ -3,7 +3,10 @@ let globalData = {
     loadMorePage: 1,
     totalPage: 0,
     playMusicId: 0,
-    audio: new Audio()
+    audio: new Audio(),
+    topMusicList: [],
+    playIndex: 0,
+    isTopMusic: false
 };
 
 let lazyLoadInstance = new LazyLoad({
@@ -12,9 +15,13 @@ let lazyLoadInstance = new LazyLoad({
     data_src: 'src'
 });
 
+function printCopyright() {
+    console.log('%cIcefox主题 By xiaopanglian v2.0.0 beta %chttps://0ru.cn', 'color: white;  background-color: #99cc99; padding: 10px;', 'color: white; background-color: #ff6666; padding: 10px;');
+}
+
 window.onload = async () => {
     // 网站接口请求地址前缀
-    globalData.webSiteHomeUrl = document.querySelector('.webSiteHomeUrl').value;
+    globalData.webSiteHomeUrl = document.querySelector('.webSiteHomeUrl')?.value;
     if (document.querySelector('._currentPage')) {
         globalData.loadMorePage = parseInt(document.querySelector('._currentPage').value);
     }
@@ -22,8 +29,34 @@ window.onload = async () => {
         globalData.totalPage = parseInt(document.querySelector('._totalPage').value);
     }
 
+    // 歌曲播放完毕
     globalData.audio.addEventListener('ended', function () {
         refreshAudioUI();
+
+        // 如果是列表播放，则继续播放下一首歌
+        if (globalData.isTopMusic === true) {
+            if (globalData.playIndex + 1 < globalData.topMusicList.length) {
+                globalData.playIndex = globalData.playIndex + 1;
+            } else {
+                globalData.playIndex = 0;
+            }
+
+            let src = globalData.topMusicList[globalData.playIndex];
+            loadAudio(src.url);
+            globalData.audio.play();
+            showFixedMusicPlayer(src.cover);
+        }
+    });
+
+    // 歌曲播放进度
+    globalData.audio.addEventListener('timeupdate', function () {
+        if (globalData.isTopMusic === true) {
+            // 进度
+            let currentTime = globalData.audio.currentTime;
+            let duration = globalData.audio.duration;
+            let jdtWidth = currentTime / duration * 5;//这里的5是w-20的宽度，单位是rem
+            $("#top-music-jdt").css('width', jdtWidth + "rem");
+        }
     });
 
     printCopyright();
@@ -42,6 +75,9 @@ window.onload = async () => {
 
     // 点击emoji
     clickEmoji();
+
+    // 加载顶部音乐
+    loadTopMusicList();
 
     // 大图预览
     let previewImages = document.querySelectorAll('.preview-image');
@@ -66,6 +102,10 @@ window.onload = async () => {
                 globalData.loadMorePage += 1;
 
                 await pjax(globalData.loadMorePage, '.article-container');
+
+                resetPlayerStyle();
+
+                intersectionObserver();
             }
 
             if (globalData.loadMorePage >= globalData.totalPage) {
@@ -89,26 +129,230 @@ window.onload = async () => {
         let headerHeight = $("header").height();
         let topFixedHeight = $("#top-fixed").height();
         if ($(this).scrollTop() + topFixedHeight > headerHeight) {
+            // 顶部滑动下来
             $('#top-fixed').addClass('bg-[#f0f0f0]');
             $('#top-fixed').addClass('dark:bg-black/30');
             $('#top-fixed').addClass('backdrop-blur-md');
             $("#friend-light").addClass('hidden');
             $("#friend-dark").removeClass('hidden');
+            $("#edit-light").addClass('hidden');
+            $("#edit-dark").removeClass('hidden');
             $("#back-light").addClass('hidden');
             $("#back-dark").removeClass('hidden');
+            $("#top-play-light").addClass('hidden');
+            $("#top-play-dark").removeClass('hidden');
+            $("#top-pause-light").addClass('hidden');
+            $("#top-pause-dark").removeClass('hidden');
+            // 右侧悬浮工具
+            $("#go-top").show();
         } else {
+            // 顶部未滑动下来
             $('#top-fixed').removeClass('bg-[#f0f0f0]');
             $('#top-fixed').removeClass('dark:bg-black/30');
             $('#top-fixed').removeClass('backdrop-blur-md');
             $("#friend-light").removeClass('hidden');
             $("#friend-dark").addClass('hidden');
+            $("#edit-light").removeClass('hidden');
+            $("#edit-dark").addClass('hidden');
             $("#back-light").removeClass('hidden');
             $("#back-dark").addClass('hidden');
+            $("#top-play-light").removeClass('hidden');
+            $("#top-play-dark").addClass('hidden');
+            $("#top-pause-light").removeClass('hidden');
+            $("#top-pause-dark").addClass('hidden');
+            // 右侧悬浮工具
+            $("#go-top").hide();
         }
     });
 
+    $("#music-modal").draggable({
+        containment: "body",
+        scroll: false
+    });
+
+    $("#fixed-music-close").click(function () {
+        $("#music-modal").hide();
+
+        globalData.playIndex = 0;
+        globalData.isTopMusic = false;
+
+        // 顶部音乐进度归0
+        $("#top-music-jdt").css('width', "0rem");
+
+        showTopMusicPlayUI();
+
+        closeAudio();
+    });
+
+    /**
+     * 暂停播放音乐
+     */
+    $("#fixed-music-pause").click(function () {
+        pauseAudioOne();
+
+
+        // 文章列表播放器按钮暂停
+        $("#music-play-" + globalData.playMusicId).removeClass("hidden");
+        $("#music-pause-" + globalData.playMusicId).addClass("hidden");
+
+        fixedMusicPlayerPauseUI();
+
+        // 顶部播放器按钮暂停
+        showTopMusicPlayUI();
+    });
+
+    $("#fixed-music-play").click(function () {
+        playAudioOne();
+
+        // 文章列表播放器按钮继续播放
+        $("#music-play-" + globalData.playMusicId).addClass("hidden");
+        $("#music-pause-" + globalData.playMusicId).removeClass("hidden");
+        fixedMusicPlayerPlayUI();
+        showTopMusicPauseUI();
+    });
+
+    /**
+     * 顶部音乐播放
+     */
+    $(".top-play").click(function () {
+        // 唤起悬浮音乐播放器，设置当前播放索引，开始播放
+
+        if (globalData.isTopMusic) { // 如果本来就是顶部音乐播放
+            globalData.audio.play();
+        } else {
+            // 原本不是顶部音乐播放，现在是顶部音乐播放
+
+            // 文章列表播放器按钮暂停
+            $("#music-play-" + globalData.playMusicId).removeClass("hidden");
+            $("#music-pause-" + globalData.playMusicId).addClass("hidden");
+
+            // 顶部音乐开始播放
+            globalData.playMusicId = 0;
+            globalData.playIndex = 0;
+            let src = globalData.topMusicList[globalData.playIndex];
+            loadAudio(src.url);
+            globalData.audio.play();
+            showFixedMusicPlayer(src.cover);
+
+            globalData.isTopMusic = true;
+        }
+
+        showTopMusicPauseUI();
+    });
+
+    /**
+     * 顶部音乐暂停
+     */
+    $(".top-pause").click(function () {
+        globalData.audio.pause();
+
+        showTopMusicPlayUI();
+    });
+
     lazyLoadInstance.update();
+
+    resetPlayerStyle();
+
+    intersectionObserver();
 };
+
+var videoTimeOut;
+function intersectionObserver() {
+    let observAutoPlayVideo = $("#observAutoPlayVideo").val();
+    if(observAutoPlayVideo === 'yes'){
+        videoTimeOut = null;
+        videoTimeOut = setTimeout(() => {
+            $("video").each((index, video) => {
+                // 创建 Intersection Observer 实例
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                video.play();
+                            } else {
+                                video.pause();
+                            }
+                        });
+                    },
+                    {
+                        root: null,
+                        rootMargin: '0px',
+                        threshold: 0.5, // 当视频元素至少有 50% 进入视窗时触发
+                    }
+                );
+    
+                // 开始观察视频元素
+                observer.observe(video);
+            });
+        }, 1000);
+    }
+}
+
+// 暂停所有页面上的 video 播放
+function pauseAllVideos() {
+    $('video').each(function () {
+        this.pause();
+    });
+}
+
+function resetPlayerStyle() {
+    const players = Array.from(document.querySelectorAll('.js-player')).map((p) =>
+        new Plyr(p, {
+            controls: ['play-large', 'play', 'mute', 'captions', 'fullscreen'],
+            muted: true
+        })
+    );
+    setTimeout(() => {
+        $(".js-player").each((index, item) => {
+            var src = $(item).data('src');
+            if (isM3U8Url(src)) {
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(src);
+                    hls.attachMedia(item);
+                }
+            }
+        });
+    }, 1000);
+
+}
+function isM3U8Url(url) {
+    try {
+        const parsedUrl = new URL(url);
+        return parsedUrl.pathname.endsWith('.m3u8');
+    } catch (error) {
+        return false;
+    }
+}
+/**
+ * 顶部音乐显示播放按钮
+ */
+function showTopMusicPlayUI() {
+    $("#top-play").show();
+    $("#top-pause").hide();
+}
+
+/**
+ * 顶部音乐显示暂停按钮
+ */
+function showTopMusicPauseUI() {
+    $("#top-play").hide();
+    $("#top-pause").show();
+}
+
+/**
+ * 加载顶部音乐列表
+ */
+function loadTopMusicList() {
+    $("#top-music-container > div").each(function (e, elem) {
+        let id = $.trim($(elem).data('id'));
+        let cover = $.trim($(elem).data('cover'));
+        globalData.topMusicList.push({
+            url: `http://music.163.com/song/media/outer/url?id=${id}.mp3`,
+            cover: cover
+        });
+    });
+}
 
 /**
  * 加载文章是否需要全文按钮
@@ -670,7 +914,7 @@ function scrollToTop() {
     anime({
         targets: 'html, body',
         scrollTop: 0,
-        duration: 500,
+        duration: 300,
         easing: 'linear'
     });
 }
@@ -683,10 +927,18 @@ function loadAudio(src) {
     globalData.audio.load();
 }
 
+function closeAudio() {
+    globalData.audio.pause();
+    globalData.audio.src = '';
+    globalData.playMusicId = 0;
+
+    refreshAudioUI();
+}
+
 /**
  * 播放音乐
  */
-function playAudio(cid, src) {
+function playAudio(cid, src, cover) {
     if (globalData.playMusicId != cid) {
         loadAudio(src);
         globalData.playMusicId = cid;
@@ -699,13 +951,37 @@ function playAudio(cid, src) {
     $("#music-play-" + cid).addClass("hidden");
     $("#music-pause-" + cid).removeClass("hidden");
 
-    $("#music-img-" + cid).addClass("rotate-animation");
+    // 显示悬浮播放器
+    showFixedMusicPlayer(cover);
+
+    showTopMusicPlayUI();
+
+    globalData.isTopMusic = false;
+
+    // 顶部音乐进度归0
+    $("#top-music-jdt").css('width', "0rem");
 }
 
-function printCopyright() {
-    console.log('%cIcefox主题 By xiaopanglian v1.8.0 %chttps://0ru.cn', 'color: white;  background-color: #99cc99; padding: 10px;', 'color: white; background-color: #ff6666; padding: 10px;');
+/**
+ * 显示悬浮播放器
+ */
+function showFixedMusicPlayer(cover) {
+    if ($("#music-modal").is(":hidden")) {
+        $("#music-modal").show();
+    }
+
+    $("#fixed-music-cover").attr("src", cover);
+
+    fixedMusicPlayerPlayUI();
 }
 
+function playAudioOne() {
+    globalData.audio.play();
+}
+
+/**
+ * 暂停音乐
+ */
 function pauseAudio(cid) {
     globalData.audio.pause();
     // 隐藏暂停按钮，显示播放按钮
@@ -713,17 +989,37 @@ function pauseAudio(cid) {
     $("#music-pause-" + cid).addClass("hidden");
 
     $("#music-img-" + cid).removeClass("rotate-animation");
+
+    fixedMusicPlayerPauseUI();
 }
 
+/**
+ * 仅播放音乐。
+ */
+function pauseAudioOne() {
+    globalData.audio.pause();
+}
+
+/**
+ * 悬浮播放器暂停UI
+ */
+function fixedMusicPlayerPauseUI() {
+    $("#fixed-music-play").show();
+    $("#fixed-music-pause").hide();
+}
+/**
+ * 悬浮播放器播放UI
+ */
+function fixedMusicPlayerPlayUI() {
+    $("#fixed-music-play").hide();
+    $("#fixed-music-pause").show();
+}
 /**
  * 刷新播放器UI
  */
 function refreshAudioUI() {
 
     // 隐藏其他文章的播放器播放按钮
-    $.each($(".music-img"), function (index, item) {
-        $(item).removeClass("rotate-animation");
-    });
     $.each($(".music-play"), function (index, item) {
         $(item).removeClass("hidden");
     });
@@ -731,6 +1027,7 @@ function refreshAudioUI() {
         $(item).addClass("hidden");
     });
 
+    fixedMusicPlayerPauseUI();
 }
 
 /**
