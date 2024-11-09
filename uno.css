@@ -5,7 +5,7 @@
 .fixed{position:fixed;}
 .relative{position:relative;}
 .static{position:static;}
-.bottom-\[-40\]{bottom:-40;}
+.bottom-\[-45\]{bottom:-45;}
 .bottom-10{bottom:2.5rem;}
 .left-0{left:0;}
 .left-1\/2{left:50%;}
@@ -49,6 +49,7 @@
 .contents{display:contents;}
 .hidden{display:none;}
 .aspect-square{aspect-ratio:1/1;}
+.h-\[12px\]{height:12px;}
 .h-\[18px\]{height:18px;}
 .h-\[20px\]{height:20px;}
 .h-\[22px\]{height:22px;}
@@ -68,6 +69,7 @@
 .max-h-64{max-height:16rem;}
 .max-w-\[300\]{max-width:300;}
 .max-w-full{max-width:100%;}
+.w-\[12px\]{width:12px;}
 .w-\[18px\]{width:18px;}
 .w-\[1px\]{width:1px;}
 .w-\[24px\]{width:24px;}
@@ -106,7 +108,6 @@
 .gap-2{gap:0.5rem;}
 .gap-3{gap:0.75rem;}
 .overflow-hidden{overflow:hidden;}
-.overflow-y-scroll{overflow-y:scroll;}
 .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .break-all{word-break:break-all;}
 .border,
@@ -180,6 +181,7 @@
 .pt-2{padding-top:0.5rem;}
 .pt-5{padding-top:1.25rem;}
 .first-of-type\:pt-2:first-of-type{padding-top:0.5rem;}
+.text-center{text-align:center;}
 .text-end{text-align:end;}
 .text-\[12px\]{font-size:12px;}
 .text-\[13px\]{font-size:13px;}
