@@ -217,14 +217,33 @@ foreach ($topCids as $cid): ?>
 
             <!--定位-->
             <section class="mb-1">
-                <?php
+            <?php
                 $position = getArticleFieldsByCid($item->cid, 'position');
-                if (count($position) > 0) {
-                    ?>
-                    <span class="text-color-link text-xs cursor-default">
-                        <?php echo $position[0]['str_value'] ?>
-                    </span>
-                    <?php
+                $positionUrl = getArticleFieldsByCid($item->cid, 'positionUrl');
+                if (!empty($position)) {
+                    if (count($positionUrl) > 0) {
+                        $strValue = $positionUrl[0]['str_value'];
+                        if (!empty($strValue)) {
+                ?>
+                            <a href="<?php echo $strValue; ?>" class=" text-color-link text-xs cursor-pointer no-underline">
+                                <img src="<?php $this->options->themeUrl('assets/svgs/position-link.svg'); ?>" class="w-[12px] h-[12px] text-color-link" />
+                                <?php echo $position[0]['str_value'] ?>
+                            </a>
+                        <?php
+                        } else {
+                        ?>
+                            <span class="text-color-link text-xs cursor-default">
+                                <?php echo $position[0]['str_value'] ?>
+                            </span>
+                <?php
+                        }
+                    }else{
+                        ?>
+                            <span class="text-color-link text-xs cursor-default">
+                                <?php echo $position[0]['str_value'] ?>
+                            </span>
+                <?php
+                    }
                 }
                 ?>
 
