@@ -1,0 +1,3 @@
+[submodule "usr/themes/icefox"]
+	path = usr/themes/icefox
+	url = git@github.com:qixing-jk/icefox.git
