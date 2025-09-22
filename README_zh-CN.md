@@ -11,11 +11,18 @@
 - **预置主题**: 项目内置了风格独特的 [WeChat_Moments_icefox](https://github.com/qixing-jk/icefox) 主题。
 - **数据库支持**: 已配置为支持像 TiDB Cloud 这样需要 SSL 连接的数据库。
 
+## 在线演示
+
+实际部署站点：[https://moments.qixing1217.top/](https://moments.qixing1217.top/)
+
 ## 部署指南
 
 你可以通过一键部署，轻松地在 Vercel 上创建你自己的博客实例。
 
 <a href="https://vercel.com/new/import?s=https://github.com/qixing-jk/Vercel-Typecho-WeChat_Moments_icefox&hasTrialAvailable=1&showOptionalTeamCreation=false&project-name=vercel-typecho-we-chat-moments-icefox&framework=other&totalProjects=1&remainingProjects=1"><img src="https://vercel.com/button"></a>
+
+部署图文教程：
+[在Vercel下部署 Typecho 动态博客（以IceFox微信朋友圈主题和SSL数据库连接为例）](https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd)
 
 ### 环境变量
 
@@ -52,9 +59,6 @@ TYPECHO_PORT="4000"
 # SSL 证书路径 (例如: isrgrootx1.pem)
 TYPECHO_SSL_CA="isrgrootx1.pem"
 ```
-
-如果需要更详细的图文教程，请参考这篇博客文章：
-[在Vercel下部署 Typecho 动态博客（以IceFox微信朋友圈主题和SSL数据库连接为例）](https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd)
 
 ## 内置主题
 
