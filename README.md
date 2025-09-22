@@ -1,24 +1,61 @@
 # Vercel-Typecho-WeChat_Moments_icefox
 
-**Vercel 免费部署 Typecho 博客 | Vercel Free Deploy Typecho Blog**
+[简体中文](README_zh-CN.md) | [English](README.md)
 
-## 部署教程
-[在Vercel下部署 Typecho 动态博客（以IceFox微信朋友圈主题和SSL数据库连接为例）](https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd)
+This project allows you to deploy a Typecho blog for free on Vercel, specifically configured with the WeChat Moments style theme `icefox`.
+
+## Features
+
+- **Free Deployment**: Host your Typecho blog on Vercel at no cost.
+- **Serverless**: No need to manage servers, Vercel handles the infrastructure.
+- **Pre-configured Theme**: Comes with the stylish [WeChat_Moments_icefox](https://github.com/qixing-jk/icefox) theme.
+- **Database Support**: Configured to work with databases like TiDB Cloud with SSL connections.
+
+## Deployment Guide
+
+You can deploy your own instance of this project to Vercel with a single click.
 
 <a href="https://vercel.com/new/import?s=https://github.com/qixing-jk/Vercel-Typecho-WeChat_Moments_icefox&hasTrialAvailable=1&showOptionalTeamCreation=false&project-name=vercel-typecho-we-chat-moments-icefox&framework=other&totalProjects=1&remainingProjects=1"><img src="https://vercel.com/button"></a>
-### 环境变量
+
+### Environment Variables
+
+After clicking the deploy button, you will be prompted to set up the environment variables. These are crucial for connecting to your database.
+
 ```dotenv
-TYPECHO_HOST="" # 数据库地址
-TYPECHO_DATABASE="tidbcloud_WeChat_Moments_icefox" # 数据库名称
-TYPECHO_USERNAME="" # 数据库用户名
-TYPECHO_PASSWORD="" # 数据库密码
-TYPECHO_PREFIX="typecho_" # 前缀
-TYPECHO_ADAPTER_NAME="Pdo_Mysql" # 数据库适配器
-TYPECHO_CHARSET="utf8mb4" # 数据库编码
-TYPECHO_ENGINE="MyISAM" # 数据库引擎
-TYPECHO_PORT="4000" # 数据库端口
-TYPECHO_SSL_CA="isrgrootx1.pem" # 数据库SSL证书位置
+# Database host address
+TYPECHO_HOST=""
+
+# Database name
+TYPECHO_DATABASE="tidbcloud_WeChat_Moments_icefox"
+
+# Database username
+TYPECHO_USERNAME=""
+
+# Database password
+TYPECHO_PASSWORD=""
+
+# Table prefix for Typecho
+TYPECHO_PREFIX="typecho_"
+
+# Database adapter
+TYPECHO_ADAPTER_NAME="Pdo_Mysql"
+
+# Database charset
+TYPECHO_CHARSET="utf8mb4"
+
+# Database engine
+TYPECHO_ENGINE="MyISAM"
+
+# Database port
+TYPECHO_PORT="4000"
+
+# Path to the SSL CA certificate (e.g., isrgrootx1.pem)
+TYPECHO_SSL_CA="isrgrootx1.pem"
 ```
 
-### 选择的主题
-[WeChat_Moments_icefox](https://github.com/qixing-jk/icefox)主题
+For a detailed, step-by-step tutorial, please refer to this blog post (in Chinese):
+[Deploying a Dynamic Typecho Blog on Vercel (Example with IceFox Theme and SSL DB Connection)](https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd)
+
+## Included Theme
+
+This project is pre-packaged with the beautiful [WeChat_Moments_icefox](https://github.com/qixing-jk/icefox) theme to give your blog a unique, social-media-like appearance.
