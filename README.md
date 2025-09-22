@@ -22,7 +22,7 @@ You can deploy your own instance of this project to Vercel with a single click.
 <a href="https://vercel.com/new/import?s=https://github.com/qixing-jk/Vercel-Typecho-WeChat_Moments_icefox&hasTrialAvailable=1&showOptionalTeamCreation=false&project-name=vercel-typecho-we-chat-moments-icefox&framework=other&totalProjects=1&remainingProjects=1"><img src="https://vercel.com/button"></a>
 
 For a detailed, step-by-step tutorial, please refer to this blog post (in Chinese):
-[Deploying a Dynamic Typecho Blog on Vercel (Example with IceFox Theme and SSL DB Connection)](https://blog.qixing1217.top/article/8879698e-363b-407a-9ec4-72f713c4e0bd)
+[Deploying a Dynamic Typecho Blog on Vercel (Example with IceFox Theme and SSL DB Connection)](https://blog.qixing1217.top/en/article/deploy-typecho-dynamic-blog-on-vercel-using-icefox-theme-and-ssl-database-connection)
 
 ### Environment Variables
 
